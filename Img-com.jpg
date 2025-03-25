@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Compress images to less than 50KB online. Free tool to reduce image size without losing quality.">
+    <meta name="keywords" content="compress image, image optimizer, reduce image size, 50KB image, free image reducer,free online emage Compression,free, free ai image Compression tool, free image Compression toolur,online Compress image 50kb, image Compression to 50kb,image Compression to 20kb ">
+    <title>Image Compressor (≤50KB)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #upload-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #image-input {
+            display: none;
+        }
+        .upload-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #compress-btn {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+        }
+        #download-btn {
+            padding: 10px 20px;
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+        }
+        #preview-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #file-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        #ad-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Image Compressor (≤50KB)</h1>
+    </header>
+    <main>
+        <section id="upload-section">
+            <input type="file" id="image-input" accept="image/*">
+            <label for="image-input" class="upload-btn">Choose Image</label>
+            <div id="file-info"></div>
+            <button id="compress-btn">Compress Image</button>
+            <a id="download-btn" download="compressed-image.jpg">Download Image</a>
+        </section>
+
+        <section id="ad-section">
+            <!-- Google AdSense -->
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_ID"
+                    crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-YOUR_ADSENSE_ID"
+                 data-ad-slot="YOUR_AD_SLOT"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </section>
+
+        <section id="preview-section">
+            <img id="preview-image" src="#" alt="Preview">
+        </section>
+    </main>
+    <footer>
+        <p>© 2023 Image Compressor | Free Online Tool</p>
+    </footer>
+
+    <script>
+        const MAX_SIZE_KB = 50; // Set maximum size to 50KB
+        let compressedBlob = null;
+
+        document.getElementById('image-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Display file info
+            document.getElementById('file-info').textContent = 
+                `Selected: ${file.name} (${(file.size/1024).toFixed(2)} KB)`;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('preview-image').src = event.target.result;
+                document.getElementById('compress-btn').style.display = 'inline-block';
+                document.getElementById('download-btn').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('compress-btn').addEventListener('click', function() {
+            const file = document.getElementById('image-input').files[0];
+            if (!file) {
+                alert('Please select an image first!');
+                return;
+            }
+
+            compressImage(file, MAX_SIZE_KB * 1024);
+        });
+
+        document.getElementById('download-btn').addEventListener('click', function() {
+            if (!compressedBlob) {
+                alert('No compressed image available!');
+                return;
+            }
+            // The download happens automatically via the anchor tag
+        });
+
+        function compressImage(file, maxSizeBytes) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Calculate new dimensions (optional: maintain aspect ratio)
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_DIMENSION = 1200; // Prevent huge canvases
+                    if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                        const ratio = Math.min(MAX_DIMENSION/width, MAX_DIMENSION/height);
+                        width *= ratio;
+                        height *= ratio;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Binary search for optimal quality
+                    let quality = 0.7; // Start with medium quality
+                    let minQuality = 0.1;
+                    let maxQuality = 1.0;
+                    let blob = null;
+
+                    // Try up to 10 iterations
+                    for (let i = 0; i < 10; i++) {
+                        blob = canvasToBlob(canvas, quality);
+                        if (blob.size <= maxSizeBytes) {
+                            // If we're under size, try higher quality
+                            minQuality = quality;
+                            quality = (quality + maxQuality) / 2;
+                        } else {
+                            // If over size, try lower quality
+                            maxQuality = quality;
+                            quality = (minQuality + quality) / 2;
+                        }
+                    }
+
+                    // Final check with best quality that fits
+                    blob = canvasToBlob(canvas, Math.max(0.1, maxQuality));
+                    
+                    // Update UI
+                    compressedBlob = blob;
+                    const downloadBtn = document.getElementById('download-btn');
+                    downloadBtn.href = URL.createObjectURL(blob);
+                    downloadBtn.style.display = 'inline-block';
+                    document.getElementById('file-info').textContent += 
+                        ` → Compressed: ${(blob.size/1024).toFixed(2)} KB`;
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function canvasToBlob(canvas, quality) {
+            // Note: PNG doesn't support quality, so we force JPEG
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            const binaryString = atob(dataUrl.split(',')[1]);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return new Blob([bytes], {type: 'image/jpeg'});
+        }
+    </script>
+</body>
+</html>
